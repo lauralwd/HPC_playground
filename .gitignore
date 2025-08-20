@@ -1,0 +1,76 @@
+# -----------------------------------------------------------------------------
+# Core: Docker, Slurm, runtime artifacts
+# -----------------------------------------------------------------------------
+*.pid
+*.log
+*.bak
+*.swp
+*.swo
+
+# Munge shared key
+munge/munge.key
+
+# Slurm spool/state/log files (auto-generated)
+slurm/state/
+slurm/compute1/
+slurm/compute2/
+slurm/log/
+
+# SSH known_hosts or temp files in user homes
+homes/*/.ssh/known_hosts
+homes/*/.bash_history
+homes/*/results/*
+homes/*/work/
+homes/*/.nextflow/
+homes/*/.cache/
+
+# Shared working data
+shared/data/*
+shared/uploads/*
+shared/results/*
+
+# Nextflow generated dirs (not templates)
+nextflow/work/
+nextflow/.nextflow*
+
+# User home dirs (optional: if you want to exclude all)
+# homes/*
+
+# -----------------------------------------------------------------------------
+# ssh and keys and stuff
+# -----------------------------------------------------------------------------
+users/*.pub
+
+
+# -----------------------------------------------------------------------------
+# Misc: editors, OS files
+# -----------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+*.~*
+*.tmp
+*~
+*.orig
+
+# -----------------------------------------------------------------------------
+# Python / Conda (if used inside user homes)
+# -----------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.ipynb_checkpoints/
+miniconda3/
+*.conda
+*.env
+*.venv
+.env
+.envrc
+
+# -----------------------------------------------------------------------------
+# Git / Backup / Local IDE settings
+# -----------------------------------------------------------------------------
+.git/
+.vscode/
+.idea/
+*.bak
+*.old
+*.backup
