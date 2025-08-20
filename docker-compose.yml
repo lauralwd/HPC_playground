@@ -1,0 +1,95 @@
+version: "2.4"
+
+networks:
+  hpc_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+services:
+  login:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: controller
+    container_name: login
+    hostname: login
+    ports:
+      - "2222:22"  # SSH in from outside
+    networks:
+      - hpc_net
+    depends_on:
+      - compute1
+      - compute2
+    volumes:
+      - ./homes:/home:rw
+      - ./shared:/shared:rw
+      - ./munge:/etc/munge:rw
+      - ./slurm/conf:/etc/slurm:ro
+      - ./slurm/state:/var/spool/slurmctld:rw
+      - ./slurm/log:/var/log/slurm:rw
+      - ./users:/etc/hpc:ro
+      - ./nextflow/pipelines:/opt/nextflow/pipelines:ro
+    entrypoint: ["/usr/local/bin/entrypoint.sh", "controller"]
+    restart: unless-stopped
+
+  compute1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: compute
+    container_name: compute1
+    hostname: compute1
+    networks:
+      - hpc_net
+    mem_limit: 2g
+    cpus: 1.0
+    volumes:
+      - ./homes:/home:rw
+      - ./shared:/shared:rw
+      - ./munge:/etc/munge:rw
+      - ./slurm/conf:/etc/slurm:ro
+      - ./slurm/compute1:/var/spool/slurmd:rw
+      - ./slurm/log:/var/log/slurm:rw
+      - ./users:/etc/hpc:ro
+    entrypoint: ["/usr/local/bin/entrypoint.sh", "compute"]
+    restart: unless-stopped
+
+  compute2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: compute
+    container_name: compute2
+    hostname: compute2
+    networks:
+      - hpc_net
+    mem_limit: 2g
+    cpus: 1.0
+    volumes:
+      - ./homes:/home:rw
+      - ./shared:/shared:rw
+      - ./munge:/etc/munge:rw
+      - ./slurm/conf:/etc/slurm:ro
+      - ./slurm/compute2:/var/spool/slurmd:rw
+      - ./slurm/log:/var/log/slurm:rw
+      - ./users:/etc/hpc:ro
+    entrypoint: ["/usr/local/bin/entrypoint.sh", "compute"]
+    restart: unless-stopped
+
+  dtn:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dtn
+    container_name: dtn
+    hostname: dtn
+    networks:
+      - hpc_net
+    volumes:
+      - ./homes:/home:rw
+      - ./shared:/shared:rw
+      - ./users:/etc/hpc:ro
+    entrypoint: ["/usr/local/bin/entrypoint.sh", "dtn"]
+    restart: unless-stopped
