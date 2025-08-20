@@ -21,10 +21,6 @@ RUN apt-get update && \
 
 RUN mkdir /var/run/sshd
 
-# Create necessary users
-RUN useradd -m -U slurm || true
-RUN useradd -m -U munge || true
-
 # Install Nextflow
 RUN curl -sSL https://get.nextflow.io | bash && \
     mv nextflow /usr/local/bin/nextflow && \
