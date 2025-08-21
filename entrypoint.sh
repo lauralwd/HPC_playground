@@ -76,13 +76,15 @@ service munge start || /etc/init.d/munge start || true
 
 # Role-specific startup
 
+chsh -s /bin/bash slurm
+
 if [ "$ROLE" = "controller" ]; then
   echo "Setting up slurmcontrol daemon" 
-  # su slurm -c "slurmctld"
+  su slurm -c "slurmctld"
   /usr/sbin/sshd -D
 elif [ "$ROLE" = "compute" ]; then
 echo "Setting up slurmcompute daemon" 
-  # su slurm -c "slurmd"
+  su slurm -c "slurmd"
   tail -f /dev/null
 elif [ "$ROLE" = "dtn" ]; then
   mkdir -p /shared/uploads /shared/data
