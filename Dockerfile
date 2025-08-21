@@ -18,8 +18,6 @@ RUN apt-get update && \
       vim \
       rsync && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
-    
-RUN ln -s $(which java) /usr/bin/java
 
 RUN mkdir /var/run/sshd
 
