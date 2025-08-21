@@ -1,4 +1,4 @@
 # username,uid,gid,public_key_path
-laura,1000,1000,keys/laura_hpc-playground.pub
-alice,1001,1001,keys/alice.pub
-bob,1002,1002,keys/bob.pub
+laura,1000,1000,laura_hpc-playground.pub
+alice,1001,1001,alice.pub
+bob,1002,1002,bob.pub
