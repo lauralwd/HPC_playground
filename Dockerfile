@@ -13,7 +13,7 @@ RUN apt-get update && \
       curl \
       ca-certificates \
       python3 \
-      default-jre-headless \
+      openjdk-17-jre-headless \
       procps \
       vim \
       rsync && \
