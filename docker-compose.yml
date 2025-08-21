@@ -13,6 +13,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: controller
+    environment:
+    - USER_BOOTSTRAP=1
     container_name: login
     hostname: login
     ports:

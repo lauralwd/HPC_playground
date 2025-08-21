@@ -4,6 +4,17 @@ set -e
 ROLE="$1"
 shift
 
+# generate munge key on login node if it doesn't exist yet
+if [[ "$USER_BOOTSTRAP" == "1" ]]; then
+    if [[ ! -f /etc/munge/munge.key ]]; then
+        echo "Generating new MUNGE key..."
+        /usr/sbin/create-munge-key
+        echo "MUNGE key created."
+    else
+        echo "MUNGE key already exists."
+    fi
+fi
+
 # Start munge
 if [ -f /etc/munge/munge.key ]; then
   chown munge:munge /etc/munge/munge.key
@@ -14,27 +25,57 @@ chown munge:munge /var/run/munge
 service munge start || /etc/init.d/munge start || true
 
 # Create users
-if [ -f /etc/hpc/users.csv ]; then
-  while IFS=, read -r user uid gid keypath; do
-    [[ "$user" =~ ^#.*$ ]] && continue
-    home_dir="/home/$user"
-    groupadd -g "$gid" "$user" || true
-    useradd -M -u "$uid" -g "$gid" -s /bin/bash -d "$home_dir" "$user" || true
-    mkdir -p "$home_dir/.ssh" "$home_dir/results"
-    if [ -f "/etc/hpc/$keypath" ]; then
-      cat "/etc/hpc/$keypath" > "$home_dir/.ssh/authorized_keys"
-    fi
-    # SSH config for intra-node SSH
-    cat <<EOF > "$home_dir/.ssh/config"
-Host compute1 compute2 dtn login
-  StrictHostKeyChecking no
-  UserKnownHostsFile=/dev/null
-EOF
-    chown -R "$user:$gid" "$home_dir"
-    chmod 700 "$home_dir/.ssh"
-    chmod 600 "$home_dir/.ssh/authorized_keys" "$home_dir/.ssh/config"
-  done < /etc/hpc/users.csv
-fi
+# if [ -f /etc/hpc/users.csv ]; then
+#   echo "Setting up user accounts from users.csv..."
+#   while IFS=, read -r username uid gid pubkey_path; do
+#       # Create user if missing
+#       if id "$username" &>/dev/null; then
+#           echo "User $username already exists"
+#       else
+#           echo "Creating user $username"
+#           useradd -m -u "$uid" -g "$gid" -s /bin/bash "$username"
+#       fi
+
+#       home_dir="/home/$username"
+#       ssh_dir="$home_dir/.ssh"
+
+#       mkdir -p "$ssh_dir"
+
+#       # Only bootstrap SSH keys and config from login node
+#       if [[ "$USER_BOOTSTRAP" == "1" ]]; then
+#           echo "Setting up SSH key and config for $username"
+
+#           if [ -f "$pubkey_path" ] ; then
+#             cp "$pubkey_path" "$ssh_dir/authorized_keys"
+#             chmod 600 "$ssh_dir/authorized_keys"
+#           fi
+
+#           # Generate minimal .ssh/config
+#           cat > "$ssh_dir/config" <<EOF
+#   Host compute1
+#       HostName compute1
+#       User $username
+#       StrictHostKeyChecking no
+
+#   Host compute2
+#       HostName compute2
+#       User $username
+#       StrictHostKeyChecking no
+
+#   Host dtn
+#       HostName dtn
+#       User $username
+#       StrictHostKeyChecking no
+#   EOF
+
+#           chmod 600 "$ssh_dir/config"
+#       fi
+
+#       chmod 700 "$ssh_dir"
+#       chown -R "$uid:$gid" "$home_dir"
+
+#   done < /opt/users/users.csv
+# fi
 
 # Role-specific startup
 if [ "$ROLE" = "controller" ]; then
