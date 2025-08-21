@@ -5,21 +5,18 @@ ROLE="$1"
 shift
 
 # generate munge key on login node if it doesn't exist yet
-if [[ "$USER_BOOTSTRAP" == "1" ]]; then
-    if [[ ! -f /etc/munge/munge.key ]]; then
-        echo "Generating new MUNGE key..."
-        /usr/sbin/create-munge-key
-        echo "MUNGE key created."
-    else
-        echo "MUNGE key already exists."
-    fi
+
+if [[ ! -f /etc/munge/munge.key ]]; then
+    echo "Generating new MUNGE key..."
+    /usr/sbin/mungekey
+    chown munge:munge -R /etc/munge/
+    chmod 400 -R /etc/munge
+    echo "MUNGE key created."
 fi
 
 # Start munge
-if [ -f /etc/munge/munge.key ]; then
-  chown munge:munge /etc/munge/munge.key
-  chmod 400 /etc/munge/munge.key
-fi
+
+
 mkdir -p /var/run/munge
 chown munge:munge /var/run/munge
 service munge start || /etc/init.d/munge start || true
