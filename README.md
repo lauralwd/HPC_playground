@@ -19,7 +19,10 @@ The HPC playground consists of
 
 ### 1. Build & start the cluster
 
+But first, make sure the munge folder has permissions 755
+
 ```bash
+chmod 755 munge
 docker compose up --build -d
 ```
 
