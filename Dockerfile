@@ -39,7 +39,9 @@ EXPOSE 22
 
 # Controller target
 FROM base AS controller
-RUN mkdir -p /var/spool/slurmctld && chown -R slurm:slurm /var/spool/slurmctld
+RUN mkdir -p /var/spool/slurmctld && \
+    chown slurm:slurm /var/spool/slurmctld && \
+    chmod 755 /var/spool/slurmctld
 
 # Compute target
 FROM base AS compute

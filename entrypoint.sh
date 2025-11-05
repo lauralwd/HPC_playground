@@ -99,6 +99,10 @@ chsh -s /bin/bash slurm
 
 if [ "$ROLE" = "controller" ]; then
   echo "Setting up slurmctld daemon on controller" 
+  # Ensure state save location has correct permissions
+  mkdir -p /var/spool/slurmctld
+  chown slurm:slurm /var/spool/slurmctld
+  chmod 755 /var/spool/slurmctld
   # Wait a bit for munge to be fully ready
   sleep 2
   slurmctld -D &
