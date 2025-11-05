@@ -65,6 +65,7 @@ All containers share:
 - Container logs: `docker compose logs [service]`
 - Reset environment: `docker compose down && rm -rf homes/* shared/*`
 - Munge issues: Check `/etc/munge/munge.key` permissions (400, munge:munge)
+- Common Munge fix: `docker compose down && sudo rm -rf munge/munge.key && docker compose up --build -d`
 
 ## Limitations to Remember
 - No quotas, accounting, or security hardening

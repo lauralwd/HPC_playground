@@ -8,17 +8,26 @@ shift
 
 if [[ ! -f /etc/munge/munge.key ]]; then
     echo "Generating new MUNGE key..."
-    /usr/sbin/mungekey
-    chown munge:munge -R /etc/munge/
-    chmod 400 -R /etc/munge
+    # Ensure munge directory exists and has correct ownership
+    mkdir -p /etc/munge
+    chown munge:munge /etc/munge
+    chmod 700 /etc/munge
+    
+    # Generate the key as munge user
+    su munge -c "/usr/sbin/mungekey"
+    
+    # Set correct permissions on the key file
+    chown munge:munge /etc/munge/munge.key
+    chmod 400 /etc/munge/munge.key
     echo "MUNGE key created."
 fi
 
 # Start munge
-
-
 mkdir -p /var/run/munge
 chown munge:munge /var/run/munge
+chmod 755 /var/run/munge
+
+# Start munge daemon
 service munge start || /etc/init.d/munge start || true
 
 # Create users
