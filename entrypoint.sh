@@ -80,12 +80,12 @@ chsh -s /bin/bash slurm
 
 if [ "$ROLE" = "controller" ]; then
   echo "Setting up slurmcontrol daemon" 
-  su slurm -c "slurmctld"
+  # su slurm -c "slurmctld -D"
+  slurmctld -D &
   /usr/sbin/sshd -D
 elif [ "$ROLE" = "compute" ]; then
 echo "Setting up slurmcompute daemon" 
-  su slurm -c "slurmd"
-  tail -f /dev/null
+  su slurm -c "slurmd -D"
 elif [ "$ROLE" = "dtn" ]; then
   mkdir -p /shared/uploads /shared/data
   while true; do
