@@ -26,12 +26,12 @@ chmod 755 munge
 docker compose up --build -d
 ```
 
-Exposes SSH on port `2222` (mapped to the login node).
+Exposes SSH on port `2424` (mapped to the login node).
 
 ### 2. Login as a user
 
 ```bash
-ssh -p 2222 alice@<your-nas-ip>
+ssh -p 2424 alice@<your-nas-ip>
 ```
 
 (Use the private key matching `users/keys/alice.pub`)
