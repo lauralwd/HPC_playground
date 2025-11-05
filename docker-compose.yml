@@ -16,7 +16,7 @@ services:
     container_name: login
     hostname: login
     ports:
-      - "2222:22"  # SSH in from outside
+      - "2424:22"  # SSH in from outside
     networks:
       - hpc_net
     mem_limit: 2g
