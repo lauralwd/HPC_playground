@@ -4,11 +4,12 @@ set -e
 ROLE="$1"
 shift
 
-# generate munge key on login node if it doesn't exist yet
+# generate munge key on login node ONLY if it doesn't exist yet
 
-if [[ ! -f /etc/munge/munge.key ]]; then
-    echo "Generating new MUNGE key..."
+if [[ "$ROLE" == "controller" && ! -f /etc/munge/munge.key ]]; then
+    echo "Generating new MUNGE key on controller..."
     # Ensure munge directory exists and has correct ownership
+    echo ' create dir /etc/munge'
     mkdir -p /etc/munge
     chown munge:munge /etc/munge
     chmod 700 /etc/munge
@@ -22,6 +23,13 @@ if [[ ! -f /etc/munge/munge.key ]]; then
     chown munge:munge /etc/munge/munge.key
     chmod 400 /etc/munge/munge.key
     echo "MUNGE key created."
+elif [[ ! -f /etc/munge/munge.key ]]; then
+    echo "Waiting for controller to generate MUNGE key..."
+    # Wait for the key to be available (shared volume)
+    while [[ ! -f /etc/munge/munge.key ]]; do
+        sleep 1
+    done
+    echo "MUNGE key found, proceeding..."
 fi
 
 # Start munge
