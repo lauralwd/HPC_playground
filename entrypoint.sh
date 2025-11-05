@@ -6,12 +6,10 @@ shift
 
 # generate munge key on login node if it doesn't exist yet
 
-
 if [[ ! -f /etc/munge/munge.key ]]; then
     echo "Generating new MUNGE key..."
     # Ensure munge directory exists and has correct ownership
     mkdir -p /etc/munge
-    echo 'make munge dir'
     chown munge:munge /etc/munge
     chmod 700 /etc/munge
     
