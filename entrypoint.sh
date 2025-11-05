@@ -141,6 +141,12 @@ if [ "$ROLE" = "controller" ]; then
 elif [ "$ROLE" = "compute" ]; then
   echo "Setting up slurmd daemon on compute node"
   
+  # Fix permissions on spool directory
+  echo "Setting up slurmd spool directory..."
+  mkdir -p /var/spool/slurmd
+  chown slurm:slurm /var/spool/slurmd
+  chmod 755 /var/spool/slurmd
+  
   # Copy config to writable location with correct permissions
   echo "Copying config to writable location..."
   cp /etc/slurm/slurm.conf /tmp/slurm.conf
