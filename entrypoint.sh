@@ -6,17 +6,26 @@ shift
 
 # generate munge key on login node if it doesn't exist yet
 
+# Ensure munge user exists
+if ! id munge &>/dev/null; then
+    echo "Creating munge user..."
+    useradd --system --home-dir /var/lib/munge --shell /bin/false munge
+fi
+
 if [[ ! -f /etc/munge/munge.key ]]; then
     echo "Generating new MUNGE key..."
     # Ensure munge directory exists and has correct ownership
     mkdir -p /etc/munge
+    echo 'make munge dir'
     chown munge:munge /etc/munge
     chmod 700 /etc/munge
     
     # Generate the key as munge user
+    echo 'generate key'
     su munge -c "/usr/sbin/mungekey"
     
     # Set correct permissions on the key file
+    echo 'set key rights'
     chown munge:munge /etc/munge/munge.key
     chmod 400 /etc/munge/munge.key
     echo "MUNGE key created."
