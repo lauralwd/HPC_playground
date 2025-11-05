@@ -6,11 +6,6 @@ shift
 
 # generate munge key on login node if it doesn't exist yet
 
-# Ensure munge user exists
-if ! id munge &>/dev/null; then
-    echo "Creating munge user..."
-    useradd --system --home-dir /var/lib/munge --shell /bin/false munge
-fi
 
 if [[ ! -f /etc/munge/munge.key ]]; then
     echo "Generating new MUNGE key..."
