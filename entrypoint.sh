@@ -104,32 +104,41 @@ if [ "$ROLE" = "controller" ]; then
   chown slurm:slurm /var/spool/slurmctld /var/log/slurm
   chmod 755 /var/spool/slurmctld /var/log/slurm
   
-  # Check slurm.conf permissions and readability
-  echo "Checking slurm.conf..."
+  # Check original slurm.conf
+  echo "Checking original slurm.conf..."
   ls -la /etc/slurm/slurm.conf
   
-  # FIX: Ensure slurm.conf has correct permissions for slurm user to read
-  chmod 644 /etc/slurm/slurm.conf
-  chown root:root /etc/slurm/slurm.conf
-  echo "Fixed slurm.conf permissions:"
-  ls -la /etc/slurm/slurm.conf
+  # WORKAROUND: Copy config to writable location with correct permissions
+  echo "Copying config to writable location..."
+  cp /etc/slurm/slurm.conf /tmp/slurm.conf
+  chmod 644 /tmp/slurm.conf
+  chown root:root /tmp/slurm.conf
+  echo "Fixed config permissions:"
+  ls -la /tmp/slurm.conf
   
-  if [ -f /etc/slurm/slurm.conf ]; then
-    echo "slurm.conf exists and is readable"
+  if [ -f /tmp/slurm.conf ]; then
+    echo "slurm.conf copied and is readable"
     echo "Config file contents:"
-    head -5 /etc/slurm/slurm.conf
+    head -5 /tmp/slurm.conf
   else
-    echo "ERROR: slurm.conf not found or not readable"
+    echo "ERROR: slurm.conf copy failed"
     exit 1
   fi
   
   # Wait a bit for munge to be fully ready
   sleep 2
-  echo "Starting slurmctld..."
-  slurmctld -D &
+  echo "Starting slurmctld with copied config..."
+  slurmctld -f /tmp/slurm.conf -D &
   /usr/sbin/sshd -D
 elif [ "$ROLE" = "compute" ]; then
   echo "Setting up slurmd daemon on compute node"
+  
+  # Copy config to writable location with correct permissions
+  echo "Copying config to writable location..."
+  cp /etc/slurm/slurm.conf /tmp/slurm.conf
+  chmod 644 /tmp/slurm.conf
+  chown root:root /tmp/slurm.conf
+  
   # Wait for controller to be ready and munge to start
   sleep 5
   # Test connectivity to controller
@@ -137,7 +146,8 @@ elif [ "$ROLE" = "compute" ]; then
     echo "Waiting for login node to be reachable..."
     sleep 2
   done
-  su slurm -c "slurmd -D"
+  echo "Starting slurmd with copied config..."
+  su slurm -c "slurmd -f /tmp/slurm.conf -D"
 elif [ "$ROLE" = "dtn" ]; then
   mkdir -p /shared/uploads /shared/data
   while true; do

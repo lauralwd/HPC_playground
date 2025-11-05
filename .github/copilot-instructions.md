@@ -66,6 +66,7 @@ All containers share:
 - Reset environment: `docker compose down && rm -rf homes/* shared/*`
 - Munge issues: Check `/etc/munge/munge.key` permissions (400, munge:munge)
 - Common Munge fix: `docker compose down && sudo rm -rf munge/munge.key && docker compose up --build -d`
+- Slurm config permissions: `chmod 644 slurm/conf/slurm.conf` on host if permission errors
 
 ## Limitations to Remember
 - No quotas, accounting, or security hardening
