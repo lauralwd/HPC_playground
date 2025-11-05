@@ -16,7 +16,8 @@ RUN apt-get update && \
       openjdk-17-jre-headless \
       procps \
       vim \
-      rsync && \
+      rsync \
+      iputils-ping && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Ensure munge directories exist with proper permissions
