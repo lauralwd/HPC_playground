@@ -100,17 +100,24 @@ chsh -s /bin/bash slurm
 if [ "$ROLE" = "controller" ]; then
   echo "Setting up slurmctld daemon on controller" 
   # Ensure state save location has correct permissions
-  mkdir -p /var/spool/slurmctld
-  chown slurm:slurm /var/spool/slurmctld
-  chmod 755 /var/spool/slurmctld
+  mkdir -p /var/spool/slurmctld /var/log/slurm
+  chown slurm:slurm /var/spool/slurmctld /var/log/slurm
+  chmod 755 /var/spool/slurmctld /var/log/slurm
   
   # Check slurm.conf permissions and readability
   echo "Checking slurm.conf..."
   ls -la /etc/slurm/slurm.conf
+  
+  # Ensure slurm can read the config
+  chmod 644 /etc/slurm/slurm.conf 2>/dev/null || true
+  
   if [ -f /etc/slurm/slurm.conf ]; then
     echo "slurm.conf exists and is readable"
+    echo "Config file contents:"
+    head -5 /etc/slurm/slurm.conf
   else
     echo "ERROR: slurm.conf not found or not readable"
+    exit 1
   fi
   
   # Wait a bit for munge to be fully ready
