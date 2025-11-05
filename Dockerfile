@@ -19,6 +19,13 @@ RUN apt-get update && \
       rsync && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Ensure munge user exists with proper setup
+RUN if ! id munge &>/dev/null; then \
+        useradd --system --home-dir /var/lib/munge --shell /bin/false munge; \
+    fi && \
+    mkdir -p /var/lib/munge /var/log/munge /var/run/munge && \
+    chown munge:munge /var/lib/munge /var/log/munge /var/run/munge
+
 RUN mkdir /var/run/sshd
 
 # Install Nextflow
