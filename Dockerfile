@@ -17,7 +17,8 @@ RUN apt-get update && \
       procps \
       vim \
       rsync \
-      iputils-ping && \
+      iputils-ping \
+      dnsutils && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Ensure munge directories exist with proper permissions

@@ -128,6 +128,14 @@ if [ "$ROLE" = "controller" ]; then
   # Wait a bit for munge to be fully ready
   sleep 2
   echo "Starting slurmctld with copied config..."
+  echo "Network debug - checking if compute nodes are reachable:"
+  echo "Waiting for compute nodes to be available..."
+  # Give compute nodes more time to start
+  sleep 5
+  nslookup compute1 || echo "compute1 DNS lookup failed"
+  nslookup compute2 || echo "compute2 DNS lookup failed"
+  ping -c 1 compute1 || echo "compute1 ping failed"
+  ping -c 1 compute2 || echo "compute2 ping failed"
   slurmctld -f /tmp/slurm.conf -D &
   /usr/sbin/sshd -D
 elif [ "$ROLE" = "compute" ]; then
