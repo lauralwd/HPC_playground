@@ -103,8 +103,19 @@ if [ "$ROLE" = "controller" ]; then
   mkdir -p /var/spool/slurmctld
   chown slurm:slurm /var/spool/slurmctld
   chmod 755 /var/spool/slurmctld
+  
+  # Check slurm.conf permissions and readability
+  echo "Checking slurm.conf..."
+  ls -la /etc/slurm/slurm.conf
+  if [ -f /etc/slurm/slurm.conf ]; then
+    echo "slurm.conf exists and is readable"
+  else
+    echo "ERROR: slurm.conf not found or not readable"
+  fi
+  
   # Wait a bit for munge to be fully ready
   sleep 2
+  echo "Starting slurmctld..."
   slurmctld -D &
   /usr/sbin/sshd -D
 elif [ "$ROLE" = "compute" ]; then
