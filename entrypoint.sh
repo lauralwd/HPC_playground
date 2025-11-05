@@ -13,9 +13,9 @@ if [[ ! -f /etc/munge/munge.key ]]; then
     chown munge:munge /etc/munge
     chmod 700 /etc/munge
     
-    # Generate the key as munge user
+    # Generate the key as root, then fix ownership
     echo 'generate key'
-    su munge -c "/usr/sbin/mungekey"
+    /usr/sbin/mungekey
     
     # Set correct permissions on the key file
     echo 'set key rights'
