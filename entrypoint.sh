@@ -108,8 +108,11 @@ if [ "$ROLE" = "controller" ]; then
   echo "Checking slurm.conf..."
   ls -la /etc/slurm/slurm.conf
   
-  # Ensure slurm can read the config
-  chmod 644 /etc/slurm/slurm.conf 2>/dev/null || true
+  # FIX: Ensure slurm.conf has correct permissions for slurm user to read
+  chmod 644 /etc/slurm/slurm.conf
+  chown root:root /etc/slurm/slurm.conf
+  echo "Fixed slurm.conf permissions:"
+  ls -la /etc/slurm/slurm.conf
   
   if [ -f /etc/slurm/slurm.conf ]; then
     echo "slurm.conf exists and is readable"
