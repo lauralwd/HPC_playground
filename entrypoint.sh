@@ -98,12 +98,20 @@ service munge start || /etc/init.d/munge start || true
 chsh -s /bin/bash slurm
 
 if [ "$ROLE" = "controller" ]; then
-  echo "Setting up slurmcontrol daemon" 
-  # su slurm -c "slurmctld -D"
+  echo "Setting up slurmctld daemon on controller" 
+  # Wait a bit for munge to be fully ready
+  sleep 2
   slurmctld -D &
   /usr/sbin/sshd -D
 elif [ "$ROLE" = "compute" ]; then
-echo "Setting up slurmcompute daemon" 
+  echo "Setting up slurmd daemon on compute node"
+  # Wait for controller to be ready and munge to start
+  sleep 5
+  # Test connectivity to controller
+  until ping -c 1 login >/dev/null 2>&1; do
+    echo "Waiting for login node to be reachable..."
+    sleep 2
+  done
   su slurm -c "slurmd -D"
 elif [ "$ROLE" = "dtn" ]; then
   mkdir -p /shared/uploads /shared/data
