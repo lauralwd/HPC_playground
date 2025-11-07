@@ -14,7 +14,7 @@ munge/munge.key
 slurm/state/
 slurm/compute1/
 slurm/compute2/
-slurm/log/
+slurm/login/
 
 # SSH known_hosts or temp files in user homes
 homes/*/.ssh/known_hosts
