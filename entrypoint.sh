@@ -111,7 +111,20 @@ if [ "$ROLE" = "controller" ]; then
   # Simple approach - use sudo service like the working example
   sudo service munge start
   sleep 3
+  
+  # Test Munge on controller
+  echo "Testing Munge authentication on controller..."
+  munge -n | unmunge || echo "Controller Munge test failed!"
+  
   sudo service slurmctld start
+  
+  # Give slurmctld a moment to fully start
+  sleep 5
+  
+  # Check if slurmctld is actually running and listening
+  echo "Checking slurmctld status..."
+  sudo service slurmctld status || echo "slurmctld service status check failed"
+  netstat -tlnp | grep 6817 || echo "Port 6817 not listening"
   
   # Start SSH daemon in foreground
   /usr/sbin/sshd -D
@@ -146,6 +159,20 @@ elif [ "$ROLE" = "compute" ]; then
     echo "Waiting for slurmctld to be ready on login:6817..."
     sleep 3
   done
+  
+  # Test Munge authentication
+  echo "Testing Munge authentication..."
+  munge -n | unmunge || echo "Munge test failed!"
+  
+  # Test communication with controller
+  echo "Testing Slurm communication..."
+  scontrol ping || echo "Scontrol ping failed"
+  
+  # Show Slurm version info for debugging
+  echo "Slurm version information:"
+  slurmd --version
+  echo "Trying to contact slurmctld directly..."
+  scontrol show config | head -5 || echo "Cannot get slurmctld config"
   
   echo "Controller is ready, starting slurmd..."
   sudo slurmd -N $(hostname) -D

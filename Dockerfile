@@ -20,7 +20,8 @@ RUN apt-get update && \
       iputils-ping \
       dnsutils \
       sudo \
-      netcat-openbsd && \
+      netcat-openbsd \
+      net-tools && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Ensure munge directories exist with proper permissions
