@@ -99,69 +99,27 @@ chsh -s /bin/bash slurm
 
 if [ "$ROLE" = "controller" ]; then
   echo "Setting up slurmctld daemon on controller" 
-  # Ensure state save location has correct permissions
-  mkdir -p /var/spool/slurmctld /var/log/slurm
-  chown slurm:slurm /var/spool/slurmctld /var/log/slurm
-  chmod 755 /var/spool/slurmctld /var/log/slurm
   
-  # Check original slurm.conf
-  echo "Checking original slurm.conf..."
-  ls -la /etc/slurm/slurm.conf
+  # Dynamic CPU configuration like the working example
+  sudo sed -i "s/REPLACE_IT/$(nproc)/g" /etc/slurm/slurm.conf
   
-  # WORKAROUND: Copy config to writable location with correct permissions
-  echo "Copying config to writable location..."
-  cp /etc/slurm/slurm.conf /tmp/slurm.conf
-  chmod 644 /tmp/slurm.conf
-  chown root:root /tmp/slurm.conf
-  echo "Fixed config permissions:"
-  ls -la /tmp/slurm.conf
+  # Simple approach - use sudo service like the working example
+  sudo service munge start
+  sleep 3
+  sudo service slurmctld start
   
-  if [ -f /tmp/slurm.conf ]; then
-    echo "slurm.conf copied and is readable"
-    echo "Config file contents:"
-    head -5 /tmp/slurm.conf
-  else
-    echo "ERROR: slurm.conf copy failed"
-    exit 1
-  fi
-  
-  # Wait a bit for munge to be fully ready
-  sleep 2
-  echo "Starting slurmctld with copied config..."
-  echo "Network debug - checking if compute nodes are reachable:"
-  echo "Waiting for compute nodes to be available..."
-  # Give compute nodes more time to start
-  sleep 5
-  nslookup compute1 || echo "compute1 DNS lookup failed"
-  nslookup compute2 || echo "compute2 DNS lookup failed"
-  ping -c 1 compute1 || echo "compute1 ping failed"
-  ping -c 1 compute2 || echo "compute2 ping failed"
-  slurmctld -f /tmp/slurm.conf -D &
+  # Start SSH daemon in foreground
   /usr/sbin/sshd -D
 elif [ "$ROLE" = "compute" ]; then
   echo "Setting up slurmd daemon on compute node"
   
-  # Fix permissions on spool directory
-  echo "Setting up slurmd spool directory..."
-  mkdir -p /var/spool/slurmd
-  chown slurm:slurm /var/spool/slurmd
-  chmod 755 /var/spool/slurmd
+  # Dynamic CPU configuration like the working example
+  sudo sed -i "s/REPLACE_IT/$(nproc)/g" /etc/slurm/slurm.conf
   
-  # Copy config to writable location with correct permissions
-  echo "Copying config to writable location..."
-  cp /etc/slurm/slurm.conf /tmp/slurm.conf
-  chmod 644 /tmp/slurm.conf
-  chown root:root /tmp/slurm.conf
-  
-  # Wait for controller to be ready and munge to start
-  sleep 5
-  # Test connectivity to controller
-  until ping -c 1 login >/dev/null 2>&1; do
-    echo "Waiting for login node to be reachable..."
-    sleep 2
-  done
-  echo "Starting slurmd with copied config..."
-  su slurm -c "slurmd -f /tmp/slurm.conf -D"
+  # Simple approach - use sudo service like the working example
+  sudo service munge start
+  sleep 3
+  sudo slurmd -N $(hostname) -D
 elif [ "$ROLE" = "dtn" ]; then
   mkdir -p /shared/uploads /shared/data
   while true; do

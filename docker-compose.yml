@@ -27,7 +27,7 @@ services:
       - ./homes:/home:rw
       - ./shared:/shared:rw
       - ./munge:/etc/munge:rw
-      - ./slurm/conf:/etc/slurm:ro
+      - ./slurm/conf:/etc/slurm:rw
       - ./slurm/login:/var/spool/slurmctld:rw
       - ./slurm/log:/var/log/slurm:rw
       - ./users:/etc/hpc:ro
@@ -49,7 +49,7 @@ services:
       - ./homes:/home:rw
       - ./shared:/shared:rw
       - ./munge:/etc/munge:rw
-      - ./slurm/conf:/etc/slurm:ro
+      - ./slurm/conf:/etc/slurm:rw
       - ./slurm/compute1:/var/spool/slurmd:rw
       - ./slurm/log:/var/log/slurm:rw
       - ./users:/etc/hpc:ro
@@ -70,7 +70,7 @@ services:
       - ./homes:/home:rw
       - ./shared:/shared:rw
       - ./munge:/etc/munge:rw
-      - ./slurm/conf:/etc/slurm:ro
+      - ./slurm/conf:/etc/slurm:rw
       - ./slurm/compute2:/var/spool/slurmd:rw
       - ./slurm/log:/var/log/slurm:rw
       - ./users:/etc/hpc:ro

@@ -18,12 +18,16 @@ RUN apt-get update && \
       vim \
       rsync \
       iputils-ping \
-      dnsutils && \
+      dnsutils \
+      sudo && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Ensure munge directories exist with proper permissions
 RUN mkdir -p /var/lib/munge /var/log/munge /var/run/munge && \
     chown munge:munge /var/lib/munge /var/log/munge /var/run/munge
+
+# Set up minimal dbus structure (skip cgroup - will handle at runtime)
+RUN mkdir -p /run/dbus
 
 RUN mkdir /var/run/sshd
 
