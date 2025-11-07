@@ -121,10 +121,34 @@ if [ "$ROLE" = "controller" ]; then
   # Give slurmctld a moment to fully start
   sleep 5
   
+  # Wait for slurmctld to be fully ready
+  echo "Waiting for slurmctld to fully initialize..."
+  for i in {1..30}; do
+    if scontrol ping >/dev/null 2>&1; then
+      echo "slurmctld is ready!"
+      break
+    else
+      echo "Waiting for slurmctld initialization (attempt $i/30)..."
+      sleep 2
+    fi
+  done
+  
   # Check if slurmctld is actually running and listening
   echo "Checking slurmctld status..."
   sudo service slurmctld status || echo "slurmctld service status check failed"
+  echo "Checking what slurmctld is actually listening on:"
   netstat -tlnp | grep 6817 || echo "Port 6817 not listening"
+  echo "Checking all slurmctld listening ports:"
+  netstat -tlnp | grep slurmctld || echo "No slurmctld ports found"
+  
+  # Test if the controller can talk to itself
+  echo "Testing controller self-communication..."
+  scontrol ping || echo "Controller self-ping failed"
+  scontrol show config | grep -E "(ClusterName|ControlMachine|ControlAddr)" || echo "Config check failed"
+  
+  # Check slurmctld logs for any errors
+  echo "Recent slurmctld log entries:"
+  tail -10 /var/log/slurm/slurmctld.log 2>/dev/null || echo "No slurmctld logs found"
   
   # Start SSH daemon in foreground
   /usr/sbin/sshd -D
@@ -171,8 +195,22 @@ elif [ "$ROLE" = "compute" ]; then
   # Show Slurm version info for debugging
   echo "Slurm version information:"
   slurmd --version
+  echo "Checking Slurm configuration..."
+  scontrol show config | grep -E "(ClusterName|ControlMachine|ControlAddr|SlurmctldPort)" || echo "Failed to get config"
   echo "Trying to contact slurmctld directly..."
   scontrol show config | head -5 || echo "Cannot get slurmctld config"
+  echo "Checking if we can resolve controller hostname..."
+  nslookup login || echo "DNS resolution failed"
+  getent hosts login || echo "Host resolution failed"
+  
+  # Test actual Slurm protocol communication
+  echo "Testing Slurm protocol communication..."
+  timeout 10 slurm_load_ctl_conf 2>&1 || echo "Slurm load config timeout or failed"
+  
+  # Check if there are any firewall or connection issues
+  echo "Testing connection specifics..."
+  nc -v -z login 6817 2>&1 | head -3
+  telnet login 6817 </dev/null 2>&1 | head -5 || echo "Telnet test complete"
   
   echo "Controller is ready, starting slurmd..."
   sudo slurmd -N $(hostname) -D
