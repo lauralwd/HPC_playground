@@ -134,6 +134,20 @@ elif [ "$ROLE" = "compute" ]; then
   echo "CPU configuration set to: $(nproc)"
   grep "CPUs=" /etc/slurm/slurm.conf | head -2
   
+  # Wait for controller to be ready before starting slurmd
+  echo "Waiting for controller to be available..."
+  until ping -c 1 login >/dev/null 2>&1; do
+    echo "Waiting for login node to be reachable..."
+    sleep 2
+  done
+  
+  # Test if slurmctld port is open
+  until nc -z login 6817; do
+    echo "Waiting for slurmctld to be ready on login:6817..."
+    sleep 3
+  done
+  
+  echo "Controller is ready, starting slurmd..."
   sudo slurmd -N $(hostname) -D
 elif [ "$ROLE" = "dtn" ]; then
   mkdir -p /shared/uploads /shared/data

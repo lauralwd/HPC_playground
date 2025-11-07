@@ -19,7 +19,8 @@ RUN apt-get update && \
       rsync \
       iputils-ping \
       dnsutils \
-      sudo && \
+      sudo \
+      netcat-openbsd && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Ensure munge directories exist with proper permissions
