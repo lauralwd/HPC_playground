@@ -100,6 +100,11 @@ chsh -s /bin/bash slurm
 if [ "$ROLE" = "controller" ]; then
   echo "Setting up slurmctld daemon on controller" 
   
+  # Set up proper permissions for slurm directories first
+  sudo mkdir -p /var/spool/slurmctld /var/log/slurm
+  sudo chown slurm:slurm /var/spool/slurmctld /var/log/slurm
+  sudo chmod 755 /var/spool/slurmctld /var/log/slurm
+  
   # Dynamic CPU configuration like the working example
   sudo sed -i "s/REPLACE_IT/$(nproc)/g" /etc/slurm/slurm.conf
   
@@ -113,12 +118,22 @@ if [ "$ROLE" = "controller" ]; then
 elif [ "$ROLE" = "compute" ]; then
   echo "Setting up slurmd daemon on compute node"
   
+  # Set up proper permissions for slurm directories first
+  sudo mkdir -p /var/spool/slurmd /var/log/slurm
+  sudo chown slurm:slurm /var/spool/slurmd /var/log/slurm
+  sudo chmod 755 /var/spool/slurmd /var/log/slurm
+  
   # Dynamic CPU configuration like the working example
   sudo sed -i "s/REPLACE_IT/$(nproc)/g" /etc/slurm/slurm.conf
   
   # Simple approach - use sudo service like the working example
   sudo service munge start
   sleep 3
+  
+  # Debug: Show what CPU config was set
+  echo "CPU configuration set to: $(nproc)"
+  grep "CPUs=" /etc/slurm/slurm.conf | head -2
+  
   sudo slurmd -N $(hostname) -D
 elif [ "$ROLE" = "dtn" ]; then
   mkdir -p /shared/uploads /shared/data
